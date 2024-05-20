@@ -18,7 +18,7 @@ class User {
       `INSERT INTO users
         (username, password, first_name, last_name, phone)
         VALUES($1, $2, $3, $4, $5)
-        RETURNING username, password, first_name, last_name, phone`
+        RETURNING username, password, first_name, last_name, phone`,
       [username, passwordHash, first_name, last_name, phone]
     );
 
@@ -50,12 +50,12 @@ class User {
       SET last_login_at = current_timestamp
         WHERE username = $1
         RETURNING username, last_login_at`,
-        [username]
+      [username]
     );
-    
+
     const user = result.rows[0];
-    
-    if(!user) throw new NotFoundError(`No such user: ${username}`);
+
+    if (!user) throw new NotFoundError(`No such user: ${username}`);
     //NOTE: not returning anything?
   }
 
@@ -66,9 +66,9 @@ class User {
     console.log("all");
     const result = await db.query(
       `SELECT username, first_name, last_name
-      FROM users`
+      FROM users` // TODO: ORDER BY first, last name
     );
-    
+
     const users = result.rows;
     return users;
   }
@@ -88,17 +88,17 @@ class User {
       `SELECT username,
               first_name,
               last_name,
-              phone, 
+              phone,
               join_at,
               last_login_at
       FROM users
-      WHERE username = $1`, 
+      WHERE username = $1`,
       [username]
     );
     const user = result.rows[0];
-    
+
     if (!user) throw new NotFoundError(`No such user: ${username}`);
-    
+
     return user;
   }
 
@@ -113,12 +113,12 @@ class User {
   static async messagesFrom(username) {
     const result = await db.query(
       `SELECT m.id,
-              t.username,
-              t.first_name,
-              t.last_name,
-              t.phone, 
-              m.body, 
-              m.sent_at, 
+              m.to_username,
+              t.first_name AS to_first_name,
+              t.last_name AS to_last_name,
+              t.phone AS to_phone,
+              m.body,
+              m.sent_at,
               m.read_at
       FROM messages AS m
         JOIN users AS f ON m.from_username = f.username
@@ -126,11 +126,11 @@ class User {
       WHERE f.username = $1`,
       [username]
     );
-    
+
     const messages = result.rows;
-    
+
     if (!messages) throw new NotFoundError(`No such user ${username}`);
-    
+
     return messages.map(m => {
       return {
         id: m.id,
@@ -143,7 +143,7 @@ class User {
         body: m.body,
         sent_at: m.sent_at,
         read_at: m.read_at,
-      }
+      };
     });
   }
 
@@ -156,10 +156,40 @@ class User {
    */
 
   static async messagesTo(username) {
-  }
+    const result = await db.query(
+      `SELECT m.id,
+              m.from_username,
+              f.first_name AS from_first_name,
+              f.last_name AS from_last_name,
+              f.phone AS from_phone,
+              m.body,
+              m.sent_at,
+              m.read_at
+      FROM messages AS m
+        JOIN users AS f ON m.from_username = f.username
+        JOIN users AS t ON m.to_username = t.username
+      WHERE t.username = $1`,
+      [username]
+    );
 
-  /** TODO: do we build a get method? */
-  async get() {
+    const messages = result.rows;
+
+    if (!messages) throw new NotFoundError(`No such user ${username}`);
+
+    return messages.map(m => {
+      return {
+        id: m.id,
+        from_user: {
+          username: m.from_username,
+          first_name: m.from_first_name,
+          last_name: m.from_last_name,
+          phone: m.from_phone,
+        },
+        body: m.body,
+        sent_at: m.sent_at,
+        read_at: m.read_at,
+      };
+    });
 
   }
 }
