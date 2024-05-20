@@ -190,7 +190,6 @@ class User {
         read_at: m.read_at,
       };
     });
-
   }
 }
 
