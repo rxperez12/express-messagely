@@ -10,6 +10,12 @@ const router = new Router();
  * => {users: [{username, first_name, last_name}, ...]}
  *
  **/
+router.get('/', ensureLoggedIn, async function (req, res, next) {
+  const users = User.all();
+
+  return res.json({ users });
+});
+
 
 
 /** GET /:username - get detail of users.
@@ -17,6 +23,13 @@ const router = new Router();
  * => {user: {username, first_name, last_name, phone, join_at, last_login_at}}
  *
  **/
+
+router.get('/:username', ensureCorrectUser, async function (req, res, next) {
+  const username = req.params.username;
+  const userDetails = User.get(username);
+
+  return res.json({ user: userDetails });
+});
 
 
 /** GET /:username/to - get messages to user
@@ -28,6 +41,14 @@ const router = new Router();
  *                 from_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/to', ensureCorrectUser, async function (req, res, next) {
+  const username = req.params.username;
+  const messagesTo = User.messagesTo(username);
+
+  return res.json({ messages: messagesTo });
+
+});
+
 
 
 /** GET /:username/from - get messages from user
@@ -39,5 +60,11 @@ const router = new Router();
  *                 to_user: {username, first_name, last_name, phone}}, ...]}
  *
  **/
+router.get('/:username/from', ensureCorrectUser, async function (req, res, next) {
+  const username = req.params.username;
+  const messagesFrom = User.messagesFrom(username);
+
+  return res.json({ messages: messagesFrom });
+});
 
 export default router;
