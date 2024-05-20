@@ -28,6 +28,7 @@ class User {
   /** Authenticate: is username/password valid? Returns boolean. */
 
   static async authenticate(username, password) {
+    console.log('authenticate', username, password);
     const result = await db.query(
       `SELECT password
         FROM users
@@ -43,6 +44,9 @@ class User {
   /** Update last_login_at for user */
 
   static async updateLoginTimestamp(username) {
+    console.log('updateLoginTimestamp', username);
+
+
   }
 
   /** All: basic info on all users:
