@@ -1,5 +1,5 @@
 /** User of the site. */
-import { UnauthorizedError } from "../expressError.js";
+import { UnauthorizedError, NotFoundError } from "../expressError.js";
 import db from '../db.js';
 import bcrypt from "bcrypt";
 import { BCRYPT_WORK_FACTOR } from "../config.js";
@@ -45,14 +45,32 @@ class User {
 
   static async updateLoginTimestamp(username) {
     console.log('updateLoginTimestamp', username);
-
-
+    const result = await db.query(
+      `UPDATE users
+      SET last_login_at = current_timestamp
+        WHERE username = $1
+        RETURNING username, last_login_at`,
+        [username]
+    );
+    
+    const user = result.rows[0];
+    
+    if(!user) throw new NotFoundError(`No such user: ${username}`);
+    //NOTE: not returning anything?
   }
 
   /** All: basic info on all users:
    * [{username, first_name, last_name}, ...] */
 
   static async all() {
+    console.log("all");
+    const result = await db.query(
+      `SELECT username, first_name, last_name
+      FROM users`
+    );
+    
+    const users = result.rows;
+    return users;
   }
 
   /** Get: get user by username
@@ -65,6 +83,23 @@ class User {
    *          last_login_at } */
 
   static async get(username) {
+    console.log("get", username);
+    const result = await db.query(
+      `SELECT username,
+              first_name,
+              last_name,
+              phone, 
+              join_at,
+              last_login_at
+      FROM users
+      WHERE username = $1`, 
+      [username]
+    );
+    const user = result.rows[0];
+    
+    if (!user) throw new NotFoundError(`No such user: ${username}`);
+    
+    return user;
   }
 
   /** Return messages from this user.
@@ -76,6 +111,40 @@ class User {
    */
 
   static async messagesFrom(username) {
+    const result = await db.query(
+      `SELECT m.id,
+              t.username,
+              t.first_name,
+              t.last_name,
+              t.phone, 
+              m.body, 
+              m.sent_at, 
+              m.read_at
+      FROM messages AS m
+        JOIN users AS f ON m.from_username = f.username
+        JOIN users AS t ON m.to_username = t.username
+      WHERE f.username = $1`,
+      [username]
+    );
+    
+    const messages = result.rows;
+    
+    if (!messages) throw new NotFoundError(`No such user ${username}`);
+    
+    return messages.map(m => {
+      return {
+        id: m.id,
+        to_user: {
+          username: m.to_username,
+          first_name: m.to_first_name,
+          last_name: m.to_last_name,
+          phone: m.to_phone,
+        },
+        body: m.body,
+        sent_at: m.sent_at,
+        read_at: m.read_at,
+      }
+    });
   }
 
   /** Return messages to this user.
