@@ -49,7 +49,7 @@ async function handleLoginFormSubmit(){
     username,
     password
   }
-  
+  //TODO: FINISH THIS FUNC
   
 }
 $loginForm.addEventListener("submit", handleLoginFormSubmit);
