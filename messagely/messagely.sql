@@ -1,3 +1,6 @@
+DROP TABLE messages CASCADE;
+DROP TABLE users CASCADE;
+
 CREATE TABLE users (
   username VARCHAR(50) PRIMARY KEY,
   password VARCHAR(100) NOT NULL,
@@ -14,3 +17,28 @@ CREATE TABLE messages (
   body TEXT NOT NULL,
   sent_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
   read_at TIMESTAMP WITH TIME ZONE);
+
+
+INSERT INTO users
+        (username, password, first_name, last_name, phone)
+        VALUES('bob', 'secret', 'Bob', 'Doe', '5555555555');
+
+INSERT INTO users
+        (username, password, first_name, last_name, phone)
+        VALUES('bob2', 'secret2', 'Bob2', 'Doe2', '5555555556');
+
+INSERT INTO messages (from_username,
+                      to_username,
+                      body,
+                      sent_at)
+             VALUES
+               ('bob', 'bob2', 'hellllloooooo', current_timestamp);
+
+INSERT INTO messages (from_username,
+                      to_username,
+                      body,
+                      sent_at)
+             VALUES
+               ('bob2', 'bob', 'hellllloooooo back', current_timestamp);
+
+
