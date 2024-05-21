@@ -1,0 +1,17 @@
+{
+  "name": "rithmschool-start-js-fe",
+  "version": "1.0.0",
+  "homepage": "https://github.com/rithmschool/start/",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "vite --open",
+    "test": "vitest",
+    "test:cov": "vitest --coverage"
+  },
+  "devDependencies": {
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0",
+    "@vitest/coverage-v8": "^1.6.0"
+  }
+}
