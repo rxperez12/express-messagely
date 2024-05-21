@@ -56,7 +56,6 @@ class User {
     const user = result.rows[0];
 
     if (!user) throw new NotFoundError(`No such user: ${username}`);
-    //NOTE: not returning anything?
   }
 
   /** All: basic info on all users:
@@ -66,7 +65,8 @@ class User {
     console.log("all");
     const result = await db.query(
       `SELECT username, first_name, last_name
-      FROM users` // TODO: ORDER BY first, last name
+      FROM users
+      ORDER BY first_name, last_name`
     );
 
     const users = result.rows;
