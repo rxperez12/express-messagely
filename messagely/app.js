@@ -1,8 +1,9 @@
 /** Express app for message.ly. */
 
-
 import express from "express";
 import cors from "cors";
+import nunjucks from "nunjucks";
+
 import { authenticateJWT } from "./middleware/auth.js";
 
 import { NotFoundError } from "./expressError.js";
@@ -18,6 +19,12 @@ app.use(cors());
 // get auth token for all routes
 app.use(authenticateJWT);
 
+
+nunjucks.configure("templates", {
+  autoescape: true,
+  express: app,
+});
+
 /** routes */
 
 import authRoutes from "./routes/auth.js";
@@ -28,6 +35,9 @@ app.use("/auth", authRoutes);
 app.use("/users", userRoutes);
 app.use("/messages", messageRoutes);
 
+app.get("/", async function (req, res, next) {
+  return res.render("index.jinja");
+});
 
 /** 404 handler: matches unmatched routes; raises NotFoundError. */
 app.use(function (req, res, next) {
