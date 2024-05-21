@@ -59,14 +59,14 @@ class User {
   }
 
   /** All: basic info on all users:
-   * [{username, first_name, last_name}, ...] */
+   * [{username, first_name, last_name}, ...] */ //ADD sorting to docstring
 
   static async all() {
     console.log("all");
     const result = await db.query(
       `SELECT username, first_name, last_name
       FROM users
-      ORDER BY first_name, last_name`
+      ORDER BY first_name, last_name` // NOTE: last_name, first_name more common
     );
 
     const users = result.rows;
@@ -124,7 +124,7 @@ class User {
         JOIN users AS f ON m.from_username = f.username
         JOIN users AS t ON m.to_username = t.username
       WHERE f.username = $1`,
-      [username]
+      [username] // TODO: ORDER BY would be useful
     );
 
     const messages = result.rows;

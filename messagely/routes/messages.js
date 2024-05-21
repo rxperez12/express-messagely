@@ -19,7 +19,7 @@ const router = new express.Router();
  **/
 
 router.get("/:id", ensureLoggedIn, async function (req, res) {
-  const currentUser = res.locals.user.username;
+  const currentUser = res.locals.user.username; //TODO: currentUser concept floating around - maybe better name is currentUsername
   const msgID = req.params.id;
   const message = await Message.get(msgID);
 
@@ -40,7 +40,7 @@ router.get("/:id", ensureLoggedIn, async function (req, res) {
  **/
 
 router.post("/", ensureLoggedIn, async function (req, res) {
-  const to_username = req.body.to_username;
+  const to_username = req.body.to_username; //TODO: use destructuring from req.body, helps separate where we're getting values from
   const from_username = res.locals.user.username;
   const body = req.body.body;
 
@@ -58,16 +58,16 @@ router.post("/", ensureLoggedIn, async function (req, res) {
  **/
 
 router.post("/:id/read", ensureLoggedIn, async function (req, res) {
-  const currentUser = res.locals.user.username;
+  const currentUser = res.locals.user.username; //TODO: currentUsername
   const msgID = req.params.id;
   const message = await Message.get(msgID);
-  
+
   if (currentUser !== message.to_user.username) {
-    throw new UnauthorizedError("Not your message!");
+    throw new UnauthorizedError("Not your message!"); //TODO: Show userID to help with troubleshooting, give more info
   }
 
   const markMessageRead = await Message.markRead(msgID);
-  
+
   return res.json({ message: markMessageRead });
 });
 

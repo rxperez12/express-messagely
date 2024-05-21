@@ -31,17 +31,19 @@ router.post("/register", async function (req, res) {
   let newUser;
 
   try {
+    const { username, password, first_name, last_name, phone } = req.body; // BETTER STYLE to use destructuring
+
     newUser = await User.register({
-      username: req.body.username,
-      password: req.body.password,
-      first_name: req.body.first_name,
-      last_name: req.body.last_name,
-      phone: req.body.phone
-  });
+      username,
+      password,
+      first_name,
+      last_name,
+      phone
+    });
   } catch (err) {
     throw new BadRequestError(`Could not create user ${err}`);
   }
-  
+
   const token = jwt.sign({ username: newUser.username }, SECRET_KEY);
   return res.json({ token });
 });
