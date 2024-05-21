@@ -28,19 +28,20 @@ router.post("/login", async function (req, res) {
 
 router.post("/register", async function (req, res) {
   if (!req.body) throw new BadRequestError();
+  let newUser;
 
   try {
-    const newUser = await User.register(
-      req.body.username,
-      req.body.password,
-      req.body.first_name,
-      req.body.last_name,
-      req.body.phone
-    );
+    newUser = await User.register({
+      username: req.body.username,
+      password: req.body.password,
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      phone: req.body.phone
+  });
   } catch (err) {
     throw new BadRequestError(`Could not create user ${err}`);
   }
-
+  
   const token = jwt.sign({ username: newUser.username }, SECRET_KEY);
   return res.json({ token });
 });
